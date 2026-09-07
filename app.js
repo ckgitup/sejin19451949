@@ -602,6 +602,24 @@ function updateTeacherUIIndicator() {
       teacherBadge.classList.add("hidden");
     }
   }
+
+  const openTeacherPortalBtn = document.getElementById("open-teacher-portal-btn");
+  if (openTeacherPortalBtn) {
+    if (isTeacherActive) {
+      openTeacherPortalBtn.classList.remove("hidden");
+    } else {
+      openTeacherPortalBtn.classList.add("hidden");
+    }
+  }
+
+  const navBtnLogout = document.getElementById("nav-btn-teacher-logout");
+  if (navBtnLogout) {
+    if (isTeacherActive) {
+      navBtnLogout.classList.remove("hidden");
+    } else {
+      navBtnLogout.classList.add("hidden");
+    }
+  }
 }
 
 function getSubModuleTimeScheduleStatus(subId) {
