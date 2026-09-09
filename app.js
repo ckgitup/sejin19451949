@@ -2643,9 +2643,13 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    fetch(`${gasUrl}?action=getRegisteredStudents&t=${Date.now()}`)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    fetch(`${gasUrl}?action=getRegisteredStudents&t=${Date.now()}`, { signal: controller.signal })
       .then(res => res.json())
       .then(data => {
+        clearTimeout(timeoutId);
         isSyncingStudents = false;
         if (data && data.status === "SUCCESS" && Array.isArray(data.students)) {
           let localStudents = getStoredArray("sejarah_registered_students");
@@ -2707,6 +2711,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       })
       .catch(err => {
+        clearTimeout(timeoutId);
         isSyncingStudents = false;
         if (!silent && badges.length > 0) {
           badges.forEach(b => {
@@ -2951,18 +2956,22 @@ document.addEventListener("DOMContentLoaded", () => {
     link.click();
   };
 
-  // Background Auto-Polling for Teacher Activation Panel (Every 5 seconds when panel is visible)
+  // Background Auto-Polling for Teacher Activation Panel (Runs whenever Teacher is active)
   setInterval(() => {
+    const isTeacherActive = sessionStorage.getItem("isTeacherActive") === "true";
+    const teacherView = document.getElementById("teacher-view");
+    const isTeacherViewVisible = teacherView && (teacherView.classList.contains("active") || teacherView.style.display === "block" || (!teacherView.classList.contains("hidden") && teacherView.offsetParent !== null));
     const paneAct = document.getElementById("v6-pane-activation") || document.getElementById("teacher-view-activation");
     const modalTeacher = document.getElementById("teacher-admin-modal");
     const isActVisible = paneAct && !paneAct.classList.contains("hidden");
     const isModalVisible = modalTeacher && !modalTeacher.classList.contains("hidden");
-    if (isActVisible || isModalVisible) {
+
+    if (isTeacherActive && (isTeacherViewVisible || isActVisible || isModalVisible)) {
       if (typeof window.syncRegisteredStudentsFromCloud === "function") {
         window.syncRegisteredStudentsFromCloud(true);
       }
     }
-  }, 5000);
+  }, 4000);
 
   // TAB 5: GAS Cloud Backend Integration Engine
   window.saveGasUrlSettings = function() {
