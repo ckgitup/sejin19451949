@@ -4485,8 +4485,16 @@
    let logs = [];
    let regStudents = [];
    try {
-    logs = JSON.parse(localStorage.getItem('sejarah_monitoring_logs') || '[]');
-    regStudents = JSON.parse(localStorage.getItem('sejarah_registered_students') || '[]');
+    if (window.secureStorage && typeof window.secureStorage.getItem === 'function') {
+      logs = window.secureStorage.getItem('sejarah_monitoring_logs') || [];
+      regStudents = window.secureStorage.getItem('sejarah_registered_students') || [];
+    }
+    if (!Array.isArray(logs) || logs.length === 0) {
+      logs = JSON.parse(localStorage.getItem('sejarah_monitoring_logs') || '[]');
+    }
+    if (!Array.isArray(regStudents) || regStudents.length === 0) {
+      regStudents = JSON.parse(localStorage.getItem('sejarah_registered_students') || '[]');
+    }
    } catch (e) { }
 
    ['stat-total-submissions', 't-stat-total'].forEach(id => {
@@ -6058,10 +6066,15 @@
    }
   });
 
-  // Continuous 2.5-Second Live Polling Loop for Active Teacher Panel Modal
+  // Continuous 2.5-Second Live Polling Loop for Active Teacher Panel & Full-Page View
   setInterval(function () {
    const teacherModal = document.getElementById('teacher-admin-modal');
-   if (teacherModal && !teacherModal.classList.contains('hidden')) {
+   const teacherView = document.getElementById('teacher-view');
+   const isTeacherActive = sessionStorage.getItem('isTeacherActive') === 'true';
+   const isTeacherViewVisible = teacherView && (teacherView.classList.contains('active') || teacherView.style.display === 'block' || (!teacherView.classList.contains('hidden') && teacherView.offsetParent !== null));
+   const isTeacherModalVisible = teacherModal && !teacherModal.classList.contains('hidden');
+
+   if (isTeacherActive && (isTeacherViewVisible || isTeacherModalVisible)) {
     if (typeof renderTeacherActivationData === 'function') renderTeacherActivationData();
     if (typeof renderTeacherMonitoringData === 'function') renderTeacherMonitoringData();
     if (typeof syncRegisteredStudentsFromCloud === 'function') syncRegisteredStudentsFromCloud(true);
@@ -6175,8 +6188,8 @@
  </script>
 
  <!-- ENGINE MODUL: Data & Logic dari modul pengantar.html -->
- <script src="modulesData.js?v=16"></script>
- <script src="app.js?v=16"></script>
+ <script src="modulesData.js?v=17"></script>
+ <script src="app.js?v=17"></script>
 </body>
 
 </html>
