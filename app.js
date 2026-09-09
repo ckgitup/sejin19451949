@@ -2754,9 +2754,14 @@ document.addEventListener("DOMContentLoaded", () => {
           const isActivated = s.status === "ACTIVATED" || s.status === "APPROVED";
           // PERBAIKAN KRITIS: gunakan email bukan index agar tidak salah target saat cloud reorder
           const safeEmail = escapeHtml(s.email || "");
+          let timeDisplay = "Terdaftar";
+          if (s.timestamp) {
+            const d = new Date(s.timestamp);
+            timeDisplay = !isNaN(d.getTime()) ? d.toLocaleString("id-ID") : escapeHtml(String(s.timestamp));
+          }
           return `
             <tr class="hover:bg-[#f6f3e9]/50 transition">
-              <td class="p-3 text-[11px] text-[#718277] font-mono">${s.timestamp ? new Date(s.timestamp).toLocaleString("id-ID") : "Terdaftar"}</td>
+              <td class="p-3 text-[11px] text-[#718277] font-mono">${timeDisplay}</td>
               <td class="p-3 font-bold text-[#174d3a] text-xs">${escapeHtml(s.nama)}</td>
               <td class="p-3 font-semibold text-[#405047] text-xs">${escapeHtml(s.kelas)}</td>
               <td class="p-3 text-[#174d3a] font-medium text-xs">${safeEmail || "-"}</td>
